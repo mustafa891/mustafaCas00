@@ -1,0 +1,781 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+@import url("https://fonts.googleapis.com/css?family=Poppins");
+@import url("https://raw.githubusercontent.com/vveleva/flipCover/master/flip_cover.scss");
+
+body {
+  font-family: "Poppins", "Roboto", sans-serif;
+}
+
+.bg-theme {
+  background-color: #1a191e;
+  color: #f43f5e;
+}
+
+.bg-theme .alt {
+  background-color: #201f25;
+}
+
+.chat-box {
+  /*height: calc((var(--vh, 1vh) * 100)-185);*/
+  height: calc(100vh - 180px);
+}
+@media (max-width: 768px) {
+  .chat-box {
+    height: calc(100vh - 230px);
+  }
+}
+
+#chatmessages {
+  position: relative;
+  overflow: hidden;
+}
+
+.home-banner {
+  background-image: radial-gradient(farthest-side at 50% 0%, #1b323a, #13242a);
+}
+
+.dbg-content {
+  position: relative;
+}
+
+.dbg-wrap {
+  overflow: hidden;
+  position: relative;
+}
+
+.dbg-bg {
+  opacity: 0.02;
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: auto;
+}
+
+.bg-footer {
+  background: url("assets/img/wave-bg.svg");
+  background-position: bottom;
+  background-size: cover;
+  background-repeat: no-repeat;
+}
+
+.text-shadow-game {
+  /*text-shadow: 0 0 5px rgb(0 0 0 / 25%), 0 0 5px rgb(0 0 0 / 26%);*/
+  text-shadow: 0 0 25px rgb(0 0 0 / 50%), 0 0 20px rgb(0 0 0 / 40%);
+}
+
+/*Roulette Styles*/
+
+.roll {
+  /*margin: 10px -30px;*/
+  background-color: #000;
+  box-shadow: 0 0 15px 6px rgb(0 0 0 / 50%);
+  padding: 2px;
+  position: relative;
+}
+
+.roll:before {
+  background: linear-gradient(270deg, rgba(20, 26, 29, 0) 0%, #141a1d 100%);
+  left: 0;
+}
+
+.roll:after {
+  background: linear-gradient(270deg, rgba(20, 26, 29, 0) 0%, #141a1d 100%);
+  transform: rotate(180deg);
+  right: 0;
+}
+
+.roll:before,
+.roll:after {
+  content: "";
+  position: absolute;
+  top: 0;
+  height: 100%;
+  width: 20px;
+  z-index: 2;
+}
+
+.show-cases {
+  display: flex;
+  justify-content: center;
+}
+
+.show-cases > img {
+  width: 100px;
+}
+.shadow-number-primary {
+  box-shadow: 0px 1px 51px 55px rgba(0, 0, 0, 1);
+  -webkit-box-shadow: 0px 1px 51px 55px rgba(0, 0, 0, 1);
+  -moz-box-shadow: 0px 1px 51px 55px rgba(0, 0, 0, 1);
+  /*0px 0px 60px 5px rgb(0 0 0) inset*/
+}
+
+.number-primary {
+  width: 150px;
+  height: 85px;
+  display: inline-block;
+  text-align: center;
+  line-height: 80px;
+  font-size: 28px;
+  color: #fff;
+  border-bottom: 1px solid #fff;
+  position: relative;
+  -moz-transition: transform 0.4s ease-out;
+  -o-transition: transform 0.4s ease-out;
+  -webkit-transition: transform 0.4s ease-out;
+  -ms-transition: transform 0.4s ease-out;
+}
+
+.number-primary:before {
+  background: linear-gradient(270deg, rgba(20, 26, 29, 0) 0%, #000000 100%);
+  left: 0;
+  content: "";
+  position: absolute;
+  top: 0;
+  height: 100%;
+  width: 30px;
+  z-index: 2;
+}
+
+.number-primary:after {
+  background: linear-gradient(270deg, rgba(20, 26, 29, 0) 0%, #000000 100%);
+  transform: rotate(180deg);
+  right: 0;
+  content: "";
+  position: absolute;
+  top: 0;
+  height: 100%;
+  width: 30px;
+  z-index: 2;
+}
+
+.shadow-inner-number {
+  box-shadow: 0px 0px 38px 10px rgb(0 0 0) inset;
+  -webkit-box-shadow: 0px 0px 38px 10px rgb(0 0 0) inset;
+  -moz-box-shadow: 0px 0px 38px 10px rgb(0 0 0) inset;
+}
+
+.numbers-roulette {
+  white-space: nowrap;
+}
+
+.numbers-roulette:before {
+  content: "";
+  position: absolute;
+  left: 0;
+  width: 100%;
+  bottom: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(0, 0, 0, 0) 0%,
+    rgba(0, 0, 0, 0.4) 100%
+  );
+  height: 25px;
+}
+
+.number {
+  width: 95px;
+  height: 80px;
+  display: inline-block;
+  text-align: center;
+  line-height: 80px;
+  font-size: 24px;
+  color: #fff;
+  border-bottom: 1px solid #fff;
+  position: relative;
+  -moz-transition: transform 0.4s ease-out;
+  -o-transition: transform 0.4s ease-out;
+  -webkit-transition: transform 0.4s ease-out;
+  -ms-transition: transform 0.4s ease-out;
+}
+
+.number:before {
+  background: linear-gradient(
+    0deg,
+    rgba(0, 0, 0, 0) 0%,
+    rgba(0, 0, 0, 0.4) 100%
+  );
+  top: 0;
+  left: 0;
+  height: 7px;
+}
+
+.number:after {
+  top: -1px;
+  background: rgba(255, 255, 255, 0.7);
+  height: 2px;
+  left: 0;
+}
+
+.number:before,
+.number:after {
+  content: "";
+  position: absolute;
+  width: 100%;
+}
+
+.roulette_game {
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+.page_content {
+  padding: 0 0;
+  position: relative;
+  overflow-y: hidden;
+  /*height: calc(100vh - 98px);*/
+}
+
+.number_mark {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  height: 100%;
+  width: 2px;
+  content: "";
+  background-color: #adbec6;
+  box-shadow: 0 2px 4px 0 rgb(0 0 0 / 50%);
+}
+
+.number_mark:before {
+  border-bottom: 15px solid #adbec6;
+  top: 100%;
+  transform: translateX(-50%);
+  margin-top: -12px;
+}
+
+.number_mark:after {
+  border-top: 15px solid #adbec6;
+  bottom: 100%;
+  transform: translateX(-50%) translateY(12px);
+}
+.number_mark:before,
+.number_mark:after {
+  width: 0;
+  height: 0;
+  border-left: 15px solid transparent;
+  border-right: 15px solid transparent;
+  position: absolute;
+  content: "";
+  left: 50%;
+}
+
+.transition-roulette {
+  transform: translate3d(-3965px, 0px, 0px);
+  transition-timing-function: cubic-bezier(0.12, 0.8, 0.38, 1);
+  transition-duration: 6.7951s;
+}
+
+.reset-transition-roulette {
+  transform: translate3d(0px, 0px, 0px);
+}
+
+/* Aussie Slots */
+/* 
+.inner-shadow {
+  box-shadow: inset 6px 6px 10px 0 rgba(0, 0, 0, 0.2),
+    inset -6px -6px 10px 0 rgba(255, 255, 255, 0.5);
+}
+
+.bevel {
+  border: none;
+  border-radius: 10px;
+  box-shadow: -2px -2px 10px rgba(0, 0, 0, 0.25) inset, 2px 2px 10px white inset;
+}
+
+.slot {
+  background-image: url("https://img.freepik.com/free-vector/casino-interior-empty-gambling-house-with-slot-machines-stand-raw-illumination_33099-1594.jpg?w=2000");
+}
+
+.slot-screen-frame {
+  height: 100%;
+  width: 100%;
+  position: absolute;
+  pointer-events: none;
+  z-index: 1;
+}
+
+#slot-screen {
+  background-color: #1a191e;
+  height: 500px;
+  position: relative;
+  overflow: hidden;
+}
+
+.reels {
+  width: 20%;
+  position: absolute;
+  border-right: 2px solid black;
+  border-radius: 5px;
+}
+
+.reels.reelFirst {
+  left: 0;
+}
+
+.reels.reelSecond {
+  left: 20%;
+}
+
+.reels.reelThird {
+  left: 40%;
+}
+
+.reels.reelFourth {
+  right: 20%;
+}
+
+.reels.reelFifth {
+  right: 0;
+}
+
+#slot-control-hud {
+  height: 200px;
+  background: linear-gradient(indianred, 10%, black);
+} */
+
+/* Aussie Slots rework */
+.slot {
+  background-image: url("https://img.freepik.com/free-vector/casino-interior-empty-gambling-house-with-slot-machines-stand-raw-illumination_33099-1594.jpg?w=2000");
+  display: flex;
+  justify-content: center;
+  position: relative;
+}
+
+.slot-frame {
+  height: 100%;
+  width: 100%;
+  position: absolute;
+  pointer-events: none;
+  z-index: 1;
+}
+
+#reels {
+  display: flex;
+  width: 100vw;
+  height: calc((3 / 5) * 100vw);
+  max-height: calc(90vh - 50px - 40px);
+  max-width: calc((5 / 3) * (90vh - 50px - 40px));
+}
+
+.reel {
+  overflow: hidden;
+  width: 20%;
+  height: 100%;
+}
+
+.reel > .suits > img {
+  width: calc(100% + 6px);
+  margin: -3px 0 0 -3px;
+  height: auto;
+
+  /* enable gpu accelaration, fixes iOS flicker */
+  transform: translate3d(0, 0, 0);
+}
+
+#slot.inverted .reel {
+  transform: scaleY(-1);
+}
+
+#slot.inverted .reel > .icons > img {
+  transform: scaleY(-1);
+}
+
+.spinButton {
+  position: relative;
+  display: inline-block;
+  margin: 20px;
+}
+
+.spinButton span {
+  color: white;
+  font-weight: bold;
+  font-size: 36px;
+  text-align: center;
+  text-decoration: none;
+  background-color: #f43f5e;
+  display: block;
+  position: relative;
+  padding: 20px 40px;
+
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+  text-shadow: 0px 1px 0px #000;
+  filter: dropshadow(color=#000, offx=0px, offy=1px);
+
+  -webkit-box-shadow: inset 0 1px 0 #ffbcc8, 0 10px 0 #880017;
+  -moz-box-shadow: inset 0 1px 0 #ffbcc8, 0 10px 0 #880017;
+  box-shadow: inset 0 1px 0 #ffbcc8, 0 10px 0 #880017;
+
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  border-radius: 5px;
+}
+
+.spinButton span:active {
+  top: 10px;
+  background-color: #eb0027;
+
+  -webkit-box-shadow: inset 0 1px 0 #ffbcc8, inset 0 -3px 0 #880017;
+  -moz-box-shadow: inset 0 1px 0 #ffbcc8, inset 0 -3pxpx 0 #880017;
+  box-shadow: inset 0 1px 0 #ffbcc8, inset 0 -3px 0 #880017;
+}
+
+.spinButton :after {
+  content: "";
+  height: 100%;
+  width: 100%;
+  padding: 4px;
+  position: absolute;
+  bottom: -15px;
+  left: -4px;
+  z-index: -1;
+  background-color: #2b0007;
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  border-radius: 5px;
+}
+
+.glow-on-hover {
+  width: 220px;
+  height: 50px;
+  border: none;
+  outline: none;
+  color: #fff;
+  background: #1a191e;
+  cursor: pointer;
+  position: relative;
+  z-index: 0;
+  border-radius: 10px;
+}
+
+.glow-on-hover:before {
+  content: '';
+  background: linear-gradient(45deg, #ff0000, #ff7300, #fffb00, #48ff00, #00ffd5, #002bff, #7a00ff, #ff00c8, #ff0000);
+  position: absolute;
+  top: -2px;
+  left:-2px;
+  background-size: 400%;
+  z-index: -1;
+  filter: blur(5px);
+  width: calc(100% + 4px);
+  height: calc(100% + 4px);
+  animation: glowing 20s linear infinite;
+  opacity: 1;
+  transition: opacity .3s ease-in-out;
+  border-radius: 10px;
+}
+
+.glow-on-hover:active {
+  color: #000
+}
+
+.glow-on-hover:active:after {
+  background: transparent;
+}
+
+.glow-on-hover:after {
+  z-index: -1;
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: #1a191e;
+  left: 0;
+  top: 0;
+  border-radius: 10px;
+}
+
+@keyframes glowing {
+  0% { background-position: 0 0; }
+  50% { background-position: 400% 0; }
+  100% { background-position: 0 0; }
+}
+
+#double-up-modal {
+  background-color: rgba(128, 128, 128, 0.733);
+  background-repeat: no-repeat;
+  background-position: top center;
+  color: white;
+  height: 100%;
+  width: 100%;
+  position: absolute;
+  z-index: 10;
+}
+
+.double-up-button {
+  background-color: indianred;
+  padding: 10px;
+}
+
+.double-up-home-button-row {
+  position: absolute;
+  bottom: 20%;
+  width: 100%;
+}
+
+.double-up-result {
+  top: 25%;
+  position: absolute;
+  background-color: gray;
+  margin: 0 -20px;
+  width: 250px;
+  height: 50px;
+  z-index: 20;
+}
+
+.imgShake {
+  /* Start the shake animation and make the animation last for 0.5 seconds */
+  animation: shake 0.5s;
+
+  /* When the animation is finished, start again */
+  animation-iteration-count: infinite;
+}
+
+@keyframes shake {
+  0% { transform: translate(1px, 1px) rotate(0deg); }
+  10% { transform: translate(-1px, -2px) rotate(-1deg); }
+  20% { transform: translate(-3px, 0px) rotate(1deg); }
+  30% { transform: translate(3px, 2px) rotate(0deg); }
+  40% { transform: translate(1px, -1px) rotate(1deg); }
+  50% { transform: translate(-1px, 2px) rotate(-1deg); }
+  60% { transform: translate(-3px, 1px) rotate(0deg); }
+  70% { transform: translate(3px, 1px) rotate(-1deg); }
+  80% { transform: translate(-1px, -1px) rotate(1deg); }
+  90% { transform: translate(1px, 2px) rotate(0deg); }
+  100% { transform: translate(1px, -2px) rotate(-1deg); }
+}
+
+.spin {
+  animation-name: spin;
+  animation-duration: 5000ms;
+  animation-iteration-count: infinite;
+  animation-timing-function: linear; 
+  /* transform: rotate(3deg); */
+   /* transform: rotate(0.3rad);/ */
+   /* transform: rotate(3grad); */ 
+   /* transform: rotate(.03turn);  */
+}
+
+@keyframes spin {
+    from {
+        transform:rotate(0deg);
+    }
+    to {
+        transform:rotate(360deg);
+    }
+}
+
+/*Template */
+@font-face {
+  font-family: "EarlyMan";
+  src: local("EarlyMan"), url("./assets/fonts/EarlyMan.ttf") format("truetype");
+}
+
+@font-face {
+  font-family: "Blogger-Sans";
+  src: local("Blogger-Sans"),
+    url("./assets/fonts/Blogger_Sans.otf") format("truetype");
+}
+
+@font-face {
+  font-family: "Blogger-Sans-Medium";
+  src: local("Blogger-Sans-Medium"),
+    url("./assets/fonts/Blogger_Sans-Medium.otf") format("truetype");
+}
+
+@font-face {
+  font-family: "Blogger-Sans-Light";
+  src: local("Blogger-Sans-Light"),
+    url("./assets/fonts/Blogger_Sans-Light.otf") format("truetype");
+}
+
+@font-face {
+  font-family: "Blogger-Sans-Bold";
+  src: local("Blogger-Sans-Bold"),
+    url("./assets/fonts/Blogger_Sans-Bold.otf") format("truetype");
+}
+
+.template-bg-dice {
+  background-color: #15242f;
+  opacity: 1;
+  background-image: radial-gradient(#2c3a44 1.1px, #15242f 1.1px);
+  background-size: 22px 22px;
+}
+
+.template-btn-white {
+  font-weight: 700;
+  display: flex;
+  -webkit-box-align: center;
+  align-items: center;
+  -webkit-box-pack: center;
+  justify-content: center;
+  position: relative;
+  z-index: 1;
+  vertical-align: top;
+  text-transform: uppercase;
+  opacity: 1;
+  cursor: pointer;
+  border: 0px;
+  text-decoration: none;
+  text-align: center;
+  box-shadow: rgb(33 44 52 / 20%) 0px 2px 10px 0px;
+  appearance: none;
+  outline: none;
+  transition: color 200ms ease 0s, background 200ms ease 0s,
+    border-color 200ms ease 0s, box-shadow 200ms ease 0s, opacity 200ms ease 0s;
+  background: #e6384a;
+  color: rgb(35 46 54);
+}
+
+.template-btn-green {
+  user-select: none;
+  font-weight: 700;
+  display: flex;
+  -webkit-box-align: center;
+  align-items: center;
+  -webkit-box-pack: center;
+  justify-content: center;
+  position: relative;
+  z-index: 1;
+  vertical-align: top;
+  text-transform: uppercase;
+  opacity: 1;
+  cursor: pointer;
+  border: 0px;
+  text-decoration: none;
+  text-align: center;
+  box-shadow: rgb(33 44 52 / 20%) 0px 2px 10px 0px;
+  appearance: none;
+  outline: none;
+  transition: color 200ms ease 0s, background 200ms ease 0s,
+    border-color 200ms ease 0s, box-shadow 200ms ease 0s, opacity 200ms ease 0s;
+}
+
+.template-bg-linear-green {
+  /*background: linear-gradient(rgb(168 214 122) 0%, rgb(150 189 119) 100%);*/
+  background: #e6384a;
+}
+
+.template-dot {
+  height: 8px;
+  width: 8px;
+  background-color: #dfedf8;
+  border-radius: 50%;
+}
+
+em-emoji-picker {
+  --border-radius: 8px;
+  --color-border-over: rgba(65, 82, 95, 1);
+  --color-border: rgba(65, 82, 95, 1);
+  --rgb-accent: 153, 193, 120;
+  --rgb-background: 35, 46, 54;
+  --rgb-color: 209, 213, 219;
+  --rgb-input: 65, 82, 95;
+  --shadow: 0px 0px 6px 0px #2a4554;
+
+  height: 50vh;
+  min-height: 400px;
+  max-height: 800px;
+}
+
+.template-min-heigth {
+  height: 100vh; /* Fallback for browsers that do not support Custom Properties */
+  height: calc(var(--vh, 1vh) * 100);
+}
+
+.template-modal-open {
+  overflow: hidden;
+}
+
+.text-simple-red {
+  color: #ed4f5c;
+}
+
+.border-simple-red {
+  border-color: #ed4f5c;
+}
+
+.bg-back-card {
+  background-color: #2a4554;
+  opacity: 0.75;
+  background-image: radial-gradient(#ffffff 0.8px, transparent 1.8px),
+    radial-gradient(#ffffff 1.8px, #2a4554 1.8px);
+  background-size: 46px 45px;
+  background-position: 0 0, 16px 16px;
+}
+
+.bg-points {
+  background-image: radial-gradient(#ffffff 0.8px, transparent 1.8px),
+    radial-gradient(#ffffff 1.8px, #15242f 1.8px);
+  background-size: 46px 45px;
+  background-position: 0 0, 16px 16px;
+}
+
+.wrap-card-small {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: left;
+  min-height: 200px;
+  padding: 2px 5px;
+  border: dotted 2px #2a4554;
+  border-radius: 5px;
+}
+
+.wrap-card-small-2 {
+  width: 100%;
+  display: grid;
+  justify-content: center;
+}
+
+.card-scroll-small {
+  font-size: 1em;
+  padding-bottom: 0em;
+  overflow-x: auto;
+}
+
+.card-slide-down {
+  display: flex;
+  align-items: center;
+  transition-property: transform;
+}
+
+.toggle-checkbox:checked {
+  right: 0;
+  border-color: #afd571;
+}
+.toggle-checkbox:checked + .toggle-label {
+  background-color: #afd571;
+}
+
+.pagination {
+  display: flex;
+  list-style: none;
+  cursor: pointer;
+}
+
+.pagination a {
+  padding: 10px 15px;
+  border-radius: 5px;
+  border: 1px solid #2a4554;
+  color: #d1d5db;
+  font-size: 14px;
+}
+
+.pagination .active a {
+  color: #d1d5db;
+  background: #2a4554;
+}
+
+.pagination .disabled a {
+  color: #2a4554;
+  border: 1px solid #2a4554;
+}
+
+/*@supports (-webkit-touch-callout: none) {
+    .template-min-heigth {
+      height: -webkit-fill-available;
+    }
+  } */

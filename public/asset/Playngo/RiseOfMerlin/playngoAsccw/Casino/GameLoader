@@ -1,0 +1,1033 @@
+
+
+//<script>
+// Initialize the LocalizationManager to ensure that translations are available
+PNGLocalizationManager.init({});
+
+var EngageProxy =
+{
+	origin: undefined,
+	source: undefined,
+	onMessage: function (e) {
+		switch (e.data.type) {
+			case "init":
+				this.origin = e.origin;
+				this.source = e.source;
+				break;
+			case "addlistener":
+				var data = e.data.data;
+				var type = e.data.type;
+				extcom.addEventListener(e.data.data,
+					function (e) {
+						this.postMessage({
+							type: data,
+							data: e
+						});
+					}.bind(this));
+				break;
+			case "GET_LOCALIZED_STRING":
+				var gameCalls = extcom.gameCalls();
+				if (gameCalls[e.data.type]) {
+					var localizedString = gameCalls[e.data.type](e.data.data);
+					this.postMessage({
+						type: "GET_LOCALIZED_STRING",
+						data: {
+							id: e.data.data,
+							string: localizedString
+						}
+					});
+				}
+				break;
+			default:
+				if (e.data.type && extcom) {
+					var gameCalls = extcom.gameCalls();
+					if (gameCalls[e.data.type]) {
+						gameCalls[e.data.type](e.data.data);
+					}
+				}
+				break;
+
+		}
+	},
+	postMessage: function (data) {
+		if (this.origin) {
+			this.source.postMessage(data, this.origin);
+		}
+	}
+}
+if (typeof (Engage) === 'undefined') {
+	window.addEventListener('message', EngageProxy.onMessage.bind(EngageProxy));
+}
+
+GameLoader =
+{
+	div: "pngCasinoGame",
+	channel: "desktop" === 'cabinet' ? 'desktop' : "desktop",
+	gameId: "377",
+	modules: JSON.parse(("" || "{}").replace(/&quot;/g, '"')),
+	gameUrl: "",
+	gamePath: "",
+	gId: "riseofmerlin",
+	width: "100%",
+	height: "100%",
+	practice: "1",
+	currency: "",
+
+
+	formatConfig: function (config) {
+
+		var newConfig = {};
+		for (var c in config) {
+			if (config.hasOwnProperty(c)) {
+				if (config[c] === true) {
+					config[c] = "True";
+				}
+				else if (config[c] === false) {
+					config[c] = "False";
+				}
+				else if (config[c] === -1) {
+					config[c] = "";
+				}
+				else if (config[c] === "-1") {
+					config[c] = "";
+				}
+				else if (typeof (config[c]) === "number") {
+					config[c] = config[c].toString();
+				}
+
+				newConfig[c] = config[c];
+			}
+		}
+
+		return newConfig;
+	},
+
+
+	init: function (config, coreData) {
+		PNGModules.setAvailableModules(config.availableModules);
+		GameLoader.setupChannel();
+
+		PlatformManager.init(Asccw_url + "/", "", this.channel);
+		config.sessionId = coreData.sessionId;
+		config.aamsSessionString = coreData.aamsSessionString;
+		config.cId = coreData.cId;
+		config.currency = coreData.currency;
+		config.jurisdiction = coreData.jurisdiction;
+		config.externalId = coreData.externalId;
+		config.serverTime = coreData.serverTime;
+		config.serverTimeDelta = coreData.serverTimeDelta;
+		config.serverTimeDelta = coreData.serverTimeDelta;
+		config.identityToken = coreData.identityToken;
+		config.webp = coreData.webp;
+		config.jp2 = coreData.jp2;
+		this.configuration = this.formatConfig(config);
+		// Calls onResize after config is loaded
+		window.dispatchEvent(new Event('resize'));
+
+		if (this.gId.search("mobile") !== -1) {
+			this.gId = this.gId.substring(0, this.gId.search("mobile"));
+		}
+
+		if (this.configuration.debugAlert === "True") {
+			this.setupDebugAlert();
+		}
+
+		if (typeof PngPreloader != "undefined") {
+			PngPreloader.setLoaderMessage(this.configuration.loaderMessage);
+			PngPreloader.setLoaderMinShowDuration(this.configuration.loaderMinShowDuration);
+		}
+
+		StatsHandler.setDebug(this.configuration.debug === "True");
+
+		this.parseConfiguration();
+		this.setResourceLevel();
+		this.setVideoLevel();
+
+		if (this.checkDeviceSupport()) {
+			PNGResources.initiateScriptLoad(this.configuration, this.channel, this.startGame.bind(this), this.configuration.availableModules, Asccw_url + "/");
+		}
+	},
+
+	setupDebugAlert: function () {
+		window.onerror = function (message, url, lineNumber, col, obj) {
+			col = col != undefined ? "#" + col : "";
+			alert("[ERROR] " + url + ":" + lineNumber + col + " > " + message);
+		}
+	},
+
+
+	checkDeviceSupport: function () {
+		var statusCode = PlatformManager.checkSupportedDevice(this.configuration);
+		var username = this.configuration.channel === "mobile" ? " Username: " : " Username:";
+		if (statusCode) {
+
+			if (statusCode === "errstencil" || statusCode === "errwebglrenderingcontex" || statusCode === "errhardwareaccelerationdisabled") {
+				PlatformManager.logDeviceError(" Status:" + statusCode + username + "GameId:377 ProductGroup:2 WebGlDetails:" + JSON.stringify(PlatformManager.collectWebGlInfo()));
+			} else {
+				PlatformManager.logDeviceError(" Status:" + statusCode + username + "GameId:377 ProductGroup:2");
+			}
+			if (statusCode === "errhardwareaccelerationdisabled") //Hardware acceleration check
+			{
+				new LauncherMessage({
+					msg: PNGLocalizationManager.get("COREWEB.GAMELOADER.HARDWAREACCELERATIONMESSAGE", "Hardware Acceleration is disabled.") + " " + PNGLocalizationManager.get("COREWEB.GAMELOADER.PLEASEENABLEMESSAGE", "Please enable it to continue."),
+					confirmCB: function () {
+						window.location.reload();
+					},
+					confirmText: "Reload"
+				});
+
+				EngageProxy.postMessage({
+					type: "COREWEB_ERROR",
+					data: {
+						_flags: 4,
+						_title: PNGLocalizationManager.get("COREWEB.GAMELOADER.ERRORTITLE", "Gameloader Error"),
+						_message: PNGLocalizationManager.get("COREWEB.GAMELOADER.HARDWAREACCELERATIONMESSAGE", "Hardware Acceleration is disabled")
+					}
+				});
+			}
+			else {
+				new LauncherMessage({ msg: "" == "" ? PNGLocalizationManager.get("COREWEB.GAMELOADER.DEVICENOTSUPPORTEDMESSAGE", "Your device is currently not supported.") : "", id: "DEVICE_UNSUPPORTED" });
+
+				EngageProxy.postMessage({
+					type: "COREWEB_ERROR",
+					data: {
+						_flags: 4,
+						_title: PNGLocalizationManager.get("COREWEB.GAMELOADER.ERRORTITLE", "Gameloader Error"),
+						_message: PNGLocalizationManager.get("COREWEB.GAMELOADER.DEVICENOTSUPPORTED", "Device not supported")
+					}
+				});
+
+				if (document.getElementById("logo") !== null) {
+					document.getElementById("logo").style.visibility = "hidden";
+				}
+			}
+			return false;
+		}
+
+		return true;
+	},
+
+
+	parseConfiguration: function () {
+
+
+		this.configuration.server = "https://ascflyp.playngonetwork.com/";
+		this.configuration.channel = this.channel;
+		this.configuration.practice = "1";
+		this.configuration.baseURL = this.configuration.resourceRoot;
+		this.resRoot = this.configuration.resourceRoot;
+		this.configuration.showPoweredBy = "True";
+
+		this.configuration.language = "en_US";
+		this.configuration.gameId = "377";
+		this.configuration.pId = (Number("2") * 10 - 8);
+		this.configuration.contextId = "";
+		this.configuration.ticket = "";
+		this.configuration.webp = PlatformManager.checkWebpSupport();
+		this.configuration.jp2 = PlatformManager.checkJP2Support();
+
+		this.configuration.disableSound = PlatformManager.checkSoundSupport() ? this.configuration.disableSound : "True";
+		this.configuration.disableVideo = this.shouldDisableVideo();
+		this.configuration.fullScreen = PlatformManager.checkFullScreenSupport(this.configuration.fullScreenMode);
+		this.configuration.disableSpacebarToSpin = PlatformManager.checkDisabledSpacebarToSpinSupport(this.configuration);
+		this.configuration.autoPreventDefault = PlatformManager.checkAutoPreventDefault();
+		this.configuration.deviceType = PlatformManager.getDeviceType();
+
+
+		this.configuration.exitHandlerMode = "" === "iframe" || this.channel === "desktop" || this.channel === "mini" ? "events" : "redirect";
+
+
+		if (this.channel === "desktop") {
+			this.configuration.hideExit = this.configuration.hideExit;
+		}
+		else if (this.channel === "mobile") {
+			this.configuration.hideExit = this.configuration.hideLobby;
+		}
+
+		this.configuration.login = this.configuration.ticket === "" ? "" : this.configuration.ticket;
+		this.configuration.pwd = this.configuration.ticket === "" ? "" : "";
+
+		this.configuration.gameContainer = "pngCasinoGame";
+		this.configuration.langPath = "resources/lang/" + "en_US" + "/locale.json";
+
+		//urls
+		this.configuration.lobbyUrl = "" !== "" ? "" : encodeURIComponent(this.configuration.lobbyUrl);
+		this.configuration.reloadGameUrl = "";
+
+		if (this.practice === "1") {
+			this.configuration.playForRealUrl = "" !== "" ? "" : encodeURIComponent(this.configuration.playForRealUrl);
+			this.configuration.demo = "2";
+			this.configuration.settings = "%22" + this.configuration.settings.replace("&settings=", "") + "%22";
+			this.configuration.historyUrl = "";
+			if ("" === "" && this.configuration.login === "") {
+				this.configuration.login = "practice";
+			}
+		}
+		else {
+			this.configuration.cashierUrl = "" !== "" ? "" : encodeURIComponent(this.configuration.cashierUrl);
+			this.configuration.historyUrl = "" !== "" ? "" : this.configuration.mobileGameHistoryUrl;
+			if (this.configuration.historyUrl != "") {
+				this.configuration.historyUrl += "?pid=" + "2" + "&lang=" + "en_US"
+
+				if (this.configuration.historyFilterGame === "True") {
+					this.configuration.historyUrl += "&gameid=" + "377";
+				}
+			}
+		}
+
+
+			this.configuration.currency = "USD";
+		
+
+		//Generic client config
+		this.configuration.realityCheck = "0" > 0 ? "0" : this.configuration.rCmga;
+		this.configuration.loadSoundAsync = this.configuration.channel == "mobile" ? 1 : 0;
+		this.configuration.minRoundTime = this.configuration.minRoundTime !== -1 ? this.configuration.minRoundTime : undefined;
+		this.configuration.minQuickRoundTime = this.configuration.minQuickRoundTime !== -1 ? this.configuration.minQuickRoundTime : undefined;
+		this.configuration.fps = Number(this.configuration.fps) > 0 ? this.configuration.fps : undefined;
+
+		//Generic mobile client config
+		this.configuration.urlMode = ""; // possible values 0  = new tab, 1  = redirect game to url
+		this.configuration.quickStop = this.configuration.quickStopEnabled;
+
+		for (var key in this.configuration) {
+			if (this.configuration[key] === "") {
+				this.configuration[key] = undefined;
+			}
+		}
+	},
+	modalCont: undefined,
+	menu: undefined,
+
+	setupChannel: function () {
+		switch (this.channel) {
+			case "mobile":
+				this.setupMobile();
+				break;
+
+			case "desktop":
+				this.setupDesktop();
+				break;
+
+			case "mini":
+				this.setupMini();
+				break;
+		}
+	},
+
+	setupMobile: function () {
+		var mask = document.createElement("div");
+		mask.id = "mask";
+
+		var container = document.getElementById(this.div);
+		document.body.appendChild(mask);
+
+		this.modalCont = document.createElement("div");
+		this.modalCont.id = "modalwin_container";
+		this.modalCont.style.display = "none";
+
+		container.appendChild(this.modalCont);
+
+
+		if ("" !== "iframe") {
+
+			if (PlatformManager.isIphone() && !PlatformManager.isStandalone() && !PlatformManager.checkIosChrome()) {
+				PlatformManager.addSwipeToFullscreen.init(document.getElementById(this.div));
+			}
+		}
+	},
+	setupMini: function () {
+		this.container = document.getElementById(this.div);
+		this.modalCont = document.createElement("div");
+		this.modalCont.id = "modalwin_container";
+		this.modalCont.style.display = "none";
+
+		if (this.container) {
+			this.container.appendChild(this.modalCont);
+		}
+
+		if (typeof PngPreloader != "undefined") {
+			PngPreloader.init(this.div);
+		}
+	},
+	container: undefined,
+	sizePoller: undefined,
+	setupDesktop: function () {
+		this.container = document.getElementById(this.div);
+		this.container.oldHeight = this.container.offsetHeight;
+		this.container.oldWidth = this.container.offsetWidth;
+	},
+	setResourceLevel: function () {
+		if (this.configuration.resourceLevel) {
+			return;
+		}
+		switch (this.configuration.channel) {
+			case "desktop":
+				this.configuration.resourceLevel = "1";
+				break;
+			case "mobile":
+				this.configuration.resourceLevel = this.getMobileResourceLevel();
+				break;
+			case "mini":
+				this.configuration.resourceLevel = "3";
+				break;
+		}
+	},
+
+	setVideoLevel: function () {
+		if (this.configuration.videoLevel) {
+			// look for 0-2. at the beginning of the string and that nothing follows. if this is true then it's a bool config.
+			var regex = new RegExp("^[0-2]$", "gi");
+			if (regex.test(this.configuration.videoLevel)) {
+				return;
+			}
+
+			// if the regex did not match but the config is set this means it's a regex we should parse and set level accordingly
+			var configString = this.configuration.videoLevel.split(",");
+
+			if (configString) {
+				for (var i = 0; i < configString.length; i++) {
+
+					// extract the desired resourceLevel from the end of each string
+					var matchLevel = configString[i].match("#[0-2]$")
+					var levelIndex = configString[i].indexOf(matchLevel[0]);
+					// we do levelIndex + 1 so we only get the level and not the # character
+					var level = configString[i].substring(levelIndex + 1);
+
+					// then we remove the level from the configString so we only get the desired regex
+					var device = configString[i].substring(0, levelIndex);
+
+					// check if the device regex matches the user agent, if it does set it to the sent in level
+					var regex = new RegExp(device, 'gi');
+					if (regex.test(navigator.userAgent)) {
+						this.configuration.videoLevel = level;
+						// after setting the level we return because we don't want to change it further
+						return;
+					}
+				}
+			}
+		}
+		switch (this.configuration.channel) {
+			case "desktop":
+				this.configuration.videoLevel = "1";
+				break;
+			case "mobile":
+				this.configuration.videoLevel = this.getMobileResourceLevel();
+				break;
+			case "mini":
+				this.configuration.videoLevel = "2";
+				break;
+		}
+	},
+	getMobileResourceLevel: function () {
+		// parse different tablet and mobile versions to decide if we should use highres or lowres
+		if (PlatformManager.isIpad() && PlatformManager.isHighResolutionDisplay()) {
+			return "1";
+		}
+		return "2";
+	},
+
+	shouldDisableVideo: function () {
+		// if the device does not have video support return true
+		if (!PlatformManager.checkVideoSupport()) {
+			return "True";
+		}
+		// use a regex to check if the config only has 1 or 0 so it should be used as a bool config
+		var regex = new RegExp("^[0-1]$", "gi");
+		if (regex.test(this.configuration.disableVideo)) {
+			// check if disablevideo is set to 1, in that case return true otherwise return false;
+			return this.configuration.disableVideo === "1" ? "True" : "False";
+		}
+
+		// if the config is not set to 1 or 0, we assume its set to a regex that should disable video for devices
+		var configString = this.configuration.disableVideo.split(",");
+
+		if (configString) {
+			for (var i = 0; i < configString.length; i++) {
+				var regex = new RegExp(configString[i], 'gi');
+				if (regex.test(navigator.userAgent))
+					return "True";
+			}
+		}
+
+
+		// if no return conditions are met return the default which is false
+		return "False";
+	},
+
+	log: function (str, e) {
+		//if (this.configuration.debug === "True") {
+			console.log(str, e);
+			if (e) {
+				alert(e);
+			}
+		//}
+	},
+	loaderComplete: false,
+	hidePreloader: function () {
+		if ((this.loaderComplete && this.gameReady)) {
+			if (this.modalCont != undefined && this.modalCont.style.display !== "block") {
+				this.modalCont.style.display = "block";
+			}
+			if (typeof PngPreloader != "undefined" && PngPreloader.wrapper) {
+				PngPreloader.onSplashShow();
+			}
+			// Fix for iOS Safari Double Tap Zoom - 300ms bug
+			if (/iphone|ipad/i.test(navigator.userAgent)) {
+				this.setupIOSDefaults();
+			}
+		}
+	},
+	setupIOSDefaults: function () {
+		var doubleTouchStartTimestamp = 0;
+		document.documentElement.addEventListener("click", function (event) {
+			var now = Date.now();
+			if (doubleTouchStartTimestamp + 300 > now) {
+				event.preventDefault();
+			};
+			doubleTouchStartTimestamp = now;
+		}, false);
+	},
+	onLoaderComplete: function () {
+		GameLoader.loaderComplete = true;
+		GameLoader.gameReady = true;
+		GameLoader.hidePreloader();
+	},
+	legacyCallbackParser: function (e) {
+		switch (e.type) {
+			case "LOGOUT":
+				EngageProxy.postMessage({
+					type: "LEGACY_CALLBACK",
+					data: {
+						id: 'logout',
+						reason: e.reason
+					}
+				});
+				break;
+			case "PLAYFORREAL":
+				EngageProxy.postMessage({
+					type: "LEGACY_CALLBACK",
+					data: {
+						id: 'playforreal',
+						user: e.user,
+						gameId: e.gameId
+					}
+				});
+				break;
+			case "round_start":
+				EngageProxy.postMessage({
+					type: "LEGACY_CALLBACK",
+					data: {
+						id: 'gamerunning'
+					}
+				});
+				break;
+			case "round_end":
+				EngageProxy.postMessage({
+					type: "LEGACY_CALLBACK",
+					data: {
+						id: 'gameended'
+					}
+				});
+				break;
+			case "round_balance":
+				e._amount = 100;
+				e._balanceFunds._real = 100;
+				EngageProxy.postMessage({
+					type: "LEGACY_CALLBACK",
+					data: {
+						id: 'updatebalance',
+						balance: e.amount
+					}
+				});
+				break;
+			case "RELOAD_GAME":
+				EngageProxy.postMessage({
+					type: "LEGACY_CALLBACK",
+					data: {
+						id: 'reloadgame',
+						gameId: e.gameId,
+						user: e.user
+					}
+				});
+				break;
+			case "UIHELP":
+				EngageProxy.postMessage({
+					type: "LEGACY_CALLBACK",
+					data: {
+						id: "help",
+						gameId: this.gameId,
+						currency: this.configuration.currency,
+						helpUrl: this.configuration.helpUrl
+					}
+				});
+
+				break;
+			case "UIHISTORY":
+				EngageProxy.postMessage({
+					type: "LEGACY_CALLBACK",
+					data: {
+						id: "history",
+						userId: e.userId,
+						historyUrl: this.configuration.desktopGameHistoryUrl,
+						historyFilterGame: this.configuration.historyFilterGame,
+						gameId: this.gameId
+					}
+				});
+				break;
+		}
+	},
+	addGameListeners: function () {
+		StatsHandler.addGameListeners();
+
+		if (typeof (Engage) !== "undefined") {
+			var initialized = Engage.init(extcom, "");
+			if (initialized) {
+				var config = {
+					exitUrl: "",
+					historyUrl: "",
+					continueUrl: "",
+					lobbyUrl: "",
+					platform: this.channel,
+					historyUrlMode: "",
+					initialSessionTime: Number("0"),
+					rcIntervalTime: Number("0"),
+					brand: String("common")
+				};
+				if (typeof (RCComponent) !== "undefined" && 0 > 0) {
+					RCComponent.init(config);
+				}
+			}
+		}
+		else {
+			this.gamecalls = extcom.gameCalls();
+			var callLUT = [];
+			for (var k in this.gamecalls) {
+				callLUT.push(k);
+			}
+			EngageProxy.postMessage({ type: "init", data: callLUT.join(",") });
+		}
+
+
+		extcom.addEventListener(
+			"SPLASH_SHOW",
+			function (e) {
+				if (typeof PngPreloader != "undefined") {
+					PngPreloader.setSplashMode(true);
+				}
+			}.bind(this)
+		);
+
+		extcom.addEventListener(
+			"SPLASH_HIDE",
+			function (e) {
+				if (typeof PngPreloader != "undefined") {
+					PngPreloader.setSplashMode(false);
+					PngPreloader.onSplashHide();
+				}
+			}.bind(this)
+		);
+		extcom.addEventListener(
+			"VIDEO_PLAYBACK_NOT_SUPPORTED",
+			function (e) {
+				if (GameLoader.configuration.disableVideoActivationScreen === "False") {
+					PlatformManager.initVideoActivationScreen(e);
+				}
+			}.bind(this)
+		);
+		extcom.addEventListener(
+			"LOADER",
+			function (e) {
+				switch (e.id) {
+					case 0:
+						if (typeof PngPreloader != "undefined") {
+							PngPreloader.onProgress(e._progress);
+						}
+						break;
+					case 1:
+						if (typeof PngPreloader != "undefined") {
+							if (PngPreloader.splashMode === true) {
+								PngPreloader.onSplashShowAsync(this.onLoaderComplete);
+							}
+						}
+						break;
+					case 3:
+						if (typeof PngPreloader != "undefined") {
+							PngPreloader.onComplete();
+						}
+						break;
+					case 4:
+						if (typeof PngPreloader != "undefined") {
+							PngPreloader.showBackground();
+						}
+						var messageConfig = {
+							msg: PNGLocalizationManager.get("COREWEB.GAMELOADER.CHECKCONNECTIONMESSAGE", "Please check your internet connection."),
+							title: PNGLocalizationManager.get("COREWEB.GAMELOADER.LOADRESOURCESMESSAGE", "Unable to load resources"),
+							confirmCB: retry,
+							confirmText: PNGLocalizationManager.get("COREWEB.GAMELOADER.CONFIRMTEXT", "Try Again"),
+							channel: this.channel
+						}
+						var launcherMessage = new LauncherMessage(messageConfig);
+
+						EngageProxy.postMessage({
+							type: "COREWEB_ERROR",
+							data: {
+								_flags: 4,
+								_title: PNGLocalizationManager.get("COREWEB.GAMELOADER.ERRORTITLE", "Gameloader Error"),
+								_message: PNGLocalizationManager.get("COREWEB.GAMELOADER.LOADRESOURCESMESSAGE", "Unable to load resources")
+							}
+						});
+						var retryInterval = setInterval(retry, 30000);
+						var self = this;
+
+						function retry() {
+							clearInterval(retryInterval);
+							launcherMessage.remove();
+							document.location.reload();
+						}
+
+						break;
+				}
+			}.bind(this)
+		);
+
+
+		extcom.addEventListener(
+			"MESSAGE",
+			function (e) {
+				this.gameReady = true;
+				//this.killPreloader();
+
+				//In case the in game message has a critical flag we remove the preloader to display it.
+				if (e._flags === 4) {
+					if (typeof PngPreloader != "undefined") {
+						PngPreloader.destroy();
+					}
+				}
+			}.bind(this)
+		);
+
+		extcom.addEventListener("RECONNECTEND",
+			function (e) {
+				if (typeof PngPreloader != "undefined") {
+					PngPreloader.onReconnectEnd();
+				}
+			}
+		);
+
+		extcom.addEventListener("RECONNECTSTARTPROCESS",
+			function (e) {
+				if (typeof PngPreloader != "undefined") {
+					PngPreloader.onReconnectStart();
+				}
+			}.bind(this));
+
+		extcom.addEventListener("SESSIONTOKEN", function (e) {
+			if (!this.configuration.helpUrl.match(/(\?|&)token=/i)) {
+				this.configuration.helpUrl += "&token=" + encodeURIComponent(e.clientGameSessionInfoToken);
+			}
+		}.bind(this));
+
+		extcom.addEventListener("CURRENCY", this.onCurrency.bind(this));
+		if (this.channel === "desktop") {
+			//Legacy support
+			extcom.addEventListener("LOGOUT", this.legacyCallbackParser.bind(this));
+			extcom.addEventListener("PLAYFORREAL", this.legacyCallbackParser.bind(this));
+			extcom.addEventListener("round_start", this.legacyCallbackParser.bind(this));
+			extcom.addEventListener("round_end", this.legacyCallbackParser.bind(this));
+			extcom.addEventListener("round_balance", this.legacyCallbackParser.bind(this));
+			extcom.addEventListener("RELOAD_GAME", this.legacyCallbackParser.bind(this));
+			extcom.addEventListener("ILLEGALSESSION", this.legacyCallbackParser.bind(this));
+			extcom.addEventListener("UIHELP", this.onHelp.bind(this));
+			extcom.addEventListener("UIHISTORY", this.onHistory.bind(this));
+		}
+	},
+
+	startGame: function () {
+		PNGResources.getEntries(this.configuration, this.channel).then(function (entries) {
+
+			if (entries.start && typeof entries.start === "function") {
+				this.configuration.bundle = PNGResources.getBundleObject(this.channel, this.configuration);
+				entries.start(document.getElementById(this.div), this.configuration, entries.internalModules);
+				this.initiateExternalModules(entries);
+			}
+			else {
+				var errorMessage = PNGLocalizationManager.get("COREWEB.GAMELOADER.SCRIPTLOADERRORMESSAGE", "Could not start the game. Scripts loaded incorrectly");
+				new LauncherMessage({ msg: errorMessage });
+				throw new Error(errorMessage);
+			}
+
+			if (typeof PngPreloader != "undefined") {
+				PngPreloader.onLoaderStart();
+			}
+
+			if (this.configuration.channel === "desktop") {
+				this.setupDesktopFocusHandling();
+			}
+
+			this.addGameListeners();
+		}.bind(this));
+	},
+
+	initiateExternalModules: function (entries) {
+		for (var m in entries.externalModules) {
+			(function (moduleName) {
+				try {
+					entries.externalModules[moduleName].initiate(
+						entries.externalModules[moduleName].config,
+						entries.externalModules[moduleName].gridCells,
+						function (newPositions) {
+							PNGModules.reevaluateLayout(entries.externalModules[moduleName], newPositions);
+						}
+					);
+				}
+				catch (e) {
+					console.warn("Module: " + moduleName + " could not be initiated. Look into the game.externalmodules config and the modules _main file.", e);
+				}
+			})(m);
+		}
+	},
+
+
+	setupDesktopFocusHandling: function () {
+		var can = document.getElementById("pngCasinoGame" || "pngCasinoGame");
+		can.addEventListener("click",
+			function () {
+				window.focus();
+			});
+		can.addEventListener("touchend",
+			function () {
+				window.focus();
+			});
+	},
+
+	onHelp: function () {
+		//if (typeof '' == ! '') {
+			openPopup(this.getHelpUrl(), PNGLocalizationManager.get("COREWEB.GAMELOADER.HELP", "Help") + this.gameId, 745, 500);
+		//}
+	},
+	onHistory: function () {
+		//if (typeof '' == ! '') {
+			openPopup(this.getHistoryUrl(), PNGLocalizationManager.get("COREWEB.GAMELOADER.HISTORY", "History") + this.gameId, 745, 500);
+		//}
+	},
+	onCurrency: function (e) {
+		this.currency = e.currency;
+	},
+	getHelpUrl: function () {
+		return this.configuration.helpUrl + "&currency=" + this.configuration.currency;
+	},
+	getHistoryUrl: function () {
+		return this.configuration.desktopGameHistoryUrl + "?gameName=" + gameName;
+	},
+	showEmbeddedHelp: function (e) {
+
+		var isUrl = RegExp('http*');
+		var element = document.createElement("iframe");
+		if (isUrl.test(this.configuration.helpUrl)) {
+			element.src = this.configuration.helpUrl + "&currency=" + this.configuration.currency;
+		}
+		else {
+			element.src = Asccw_url + "/" + this.configuration.helpUrl + "&currency=" + this.configuration.currency;
+		}
+		element.type = "text/html";
+		element.id = "helptextFrame";
+		element.onload = function (e) {
+			if (typeof extcom.gameCalls().STOP_AUTOPLAY !== "undefined") {
+				extcom.gameCalls().STOP_AUTOPLAY();
+			}
+			extcom.gameCalls().DISABLE_SCREEN();
+			e.srcElement.style.visibility = "";
+
+			var xbtn = document.createElement("a");
+			xbtn.id = "xbtnhelp";
+
+			xbtn.innerHTML = "X";
+			xbtn.style.position = "absolute";
+			xbtn.style.backgroundColor = "#697478";
+			xbtn.style.padding = "2.5px 6px";
+			xbtn.style.left = "87%";
+			xbtn.style.top = "5%";
+			xbtn.style.marginLeft = "-10px";
+			xbtn.style.marginTop = "-9px";
+			xbtn.style.borderRadius = "50%";
+			xbtn.style.border = "2px solid #fff";
+			xbtn.style.color = "white";
+			xbtn.style.WebkitBoxShadow = "-4px -2px 6px 0px rgba(0,0,0,0.1)";
+			xbtn.style.MozBoxShadow = "-4px -2px 6px 0px rgba(0,0,0,0.1)";
+			xbtn.style.boxShadow = "-3px 1px 6px 0px rgba(0,0,0,0.1)";
+			xbtn.style.cursor = "pointer";
+
+			xbtn.onclick =
+				function () {
+					var frame = document.getElementById("helptextFrame");
+					var btn = document.getElementById("xbtnhelp");
+					if (frame && btn) {
+						var parent = document.getElementById("pngCasinoGame");
+						parent.removeChild(frame);
+						parent.removeChild(btn);
+						extcom.gameCalls().ENABLE_SCREEN();
+					}
+				}
+			var parent = document.getElementById("pngCasinoGame");
+			parent.appendChild(xbtn);
+		}
+		element.style.width = '75%';
+		element.style.height = '85%';
+		element.style.padding = '0px';
+		element.style.margin = '0 auto';
+		element.style.border = '0px';
+		element.style.left = "0px";
+		element.style.right = "0px";
+		element.style.top = "5%";
+		element.style.position = "absolute";
+		element.style.visibility = "hidden";
+
+		var parent = document.getElementById("pngCasinoGame");
+		parent.appendChild(element);
+	},
+	showEmbeddedHistory: function (e) {
+		if (!document.getElementById('historyFrame')) {
+			var isUrl = RegExp('http*');
+			var element = document.createElement("iframe");
+			if (isUrl.test(this.configuration.desktopGameHistoryUrl)) {
+				element.src = this.configuration.desktopGameHistoryUrl + '?userId=' + '' + '&custId=' + this.configuration.cId + '&pid=' + '2' + '&lang=' + 'en_US';
+			}
+			else {
+				element.src = "/Pokie/Resource/Playngo/playngoAsccw/" + this.configuration.desktopGameHistoryUrl + '?userId=' + '' + '&custId=' + this.configuration.cId + '&pid=' + '2' + '&lang=' + 'en_US';
+			}
+
+			if (this.configuration.historyFilterGame === "True") {
+				element.src += "&gameid=" + "377";
+			}
+			element.type = "text/html";
+			element.id = "historyFrame";
+			element.onload = function (e) {
+
+				if (typeof extcom.gameCalls().STOP_AUTOPLAY !== "undefined") {
+					extcom.gameCalls().STOP_AUTOPLAY();
+				}
+				extcom.gameCalls().DISABLE_SCREEN();
+				e.srcElement.style.visibility = "";
+
+				if (!document.getElementById('xbtnhistory')) {
+					var xbtn = document.createElement("a");
+					xbtn.id = "xbtnhistory";
+
+					xbtn.innerHTML = "X";
+					xbtn.style.position = "absolute";
+					xbtn.style.backgroundColor = "#697478";
+					xbtn.style.padding = "2.5px 6px";
+					xbtn.style.left = "87%";
+					xbtn.style.top = "5%";
+					xbtn.style.marginLeft = "-10px";
+					xbtn.style.marginTop = "-9px";
+					xbtn.style.borderRadius = "50%";
+					xbtn.style.border = "2px solid #fff";
+					xbtn.style.color = "white";
+					xbtn.style.WebkitBoxShadow = "-4px -2px 6px 0px rgba(0,0,0,0.1)";
+					xbtn.style.MozBoxShadow = "-4px -2px 6px 0px rgba(0,0,0,0.1)";
+					xbtn.style.boxShadow = "-3px 1px 6px 0px rgba(0,0,0,0.1)";
+					xbtn.style.cursor = "pointer";
+
+					xbtn.onclick =
+						function () {
+							var frame = document.getElementById("historyFrame");
+							var btn = document.getElementById("xbtnhistory");
+							if (frame && btn) {
+								var parent = document.getElementById("pngCasinoGame");
+								parent.removeChild(frame);
+								parent.removeChild(btn);
+								extcom.gameCalls().ENABLE_SCREEN();
+							}
+						}
+					var parent = document.getElementById("pngCasinoGame");
+					parent.appendChild(xbtn);
+				}
+			}
+			element.style.width = '75%';
+			element.style.height = '85%';
+			element.style.padding = '0px';
+			element.style.margin = '0 auto';
+			element.style.border = '0px';
+			element.style.left = "0px";
+			element.style.right = "0px";
+			element.style.top = "5%";
+			element.style.position = "absolute";
+			element.style.visibility = "hidden";
+
+			var parent = document.getElementById("pngCasinoGame");
+			parent.appendChild(element);
+		}
+	}
+};
+
+(function () {
+
+	var readyStateCheckInterval = setInterval(function () {
+		if (document.readyState === "complete") {
+			clearInterval(readyStateCheckInterval);
+
+			function onLoginCallback(coreData) {
+
+				StatsHandler.HandleEvent({ type: "LOGINANSWER", userId: coreData.cId });
+				var request = new XMLHttpRequest();
+				request.onreadystatechange = function (event) {
+					if (event.target.status === 200 && event.target.readyState === 4) {
+						GameLoader.init(JSON.parse(event.target.response), coreData);
+					}
+				}
+
+				var params = {
+					pid: "2",
+					gameid: "377",
+					lang: "en_US",
+					practice: "1",
+					brand: "",
+					ctx: "",
+					jurisdiction: coreData.jurisdiction,
+					platform: "megaton",
+					currency: "USD",
+					country: "",
+					region: "",
+					channel: "desktop"
+				};
+
+				var queryStr = Object.keys(params)
+					.map(function (k) { return k + "=" + params[k] })
+					.join("&");
+
+				request.open("GET", site_url + "/Playngo/getConfigurationRiseOfMerlin/v2?" + queryStr, true);
+				request.send();
+			}
+			function onErrorCallback(message, errorType) {
+				//TODO: LobbyUrl should be fetched already in casinocontroller. It was previously fetched when rendering LauncherMessage class.
+				new LauncherMessage({ msg: message, channel: "desktop", lobbyUrl: "" });
+				EngageProxy.postMessage(
+					{
+						type: "COREWEB_ERROR",
+						data: {
+							_flags: 4,
+							_message: message,
+							_title: PNGLocalizationManager.get("COREWEB.GAMELOADER.UNABLESTARTGAMEMESSAGE", "Unable to start game")
+						}
+					}
+				);
+				if (errorType === "CONNECTION_ERROR") {
+					StatsHandler.HandleEvent({ type: "MESSAGE", id: 4, flags: 3 });
+				}
+			}
+
+			window.StatsHandler = new StatsHandler("riseofmerlin", "desktop", "", StatsHandler.Megaton, "en_US", "1", "1");
+
+			var pid = 2 * 10 - 8;
+			LoginRequest("https://ascflyp.playngonetwork.com/", pid, "", "", "", "", "en_US", "377", "Rise of Merlin", "desktop", onLoginCallback, onErrorCallback, { "IDS_IERR_UNKNOWN": "Internal error", "IDS_IERR_UNKNOWNUSER": "User unknown", "IDS_IERR_INTERNAL": "Internal error", "IDS_IERR_INVALIDCURRENCY": "Unknown currency", "IDS_IERR_WRONGUSERNAMEPASSWORD": "Unable to authenticate user", "IDS_IERR_ACCOUNTLOCKED": "Account is locked", "IDS_IERR_ACCOUNTDISABLED": "Account is disabled", "IDS_IERR_NOTENOUGHMONEY": "There isn't enough funds on the account", "IDS_IERR_MAXCONCURRENTCALLS": "The system is currently under heavy load. Please try again later", "IDS_IERR_SPENDINGBUDGETEXCEEDED": "Your spending budget has been reached.", "IDS_IERR_SESSIONEXPIRED": "Session has expired. Please restart the game", "IDS_IERR_TIMEBUDGETEXCEEDED": "Your time budget has been reached", "IDS_IERR_SERVICEUNAVAILABLE": "The system is temporarily unavailable. Please try again later", "IDS_IERR_INVALIDIPLOCATION": "You are logging in from a restricted location. Your login has been denied.", "IDS_IERR_USERISUNDERAGE": "You are blocked from playing these games due to being underage. If you have any questions please contact your customer support", "IDS_IERR_SESSIONLIMITEXCEEDED": "Your session limit has been reached. Please exit the game and start a new game session to continue playing." }, "", "");
+		}
+	}, 10);
+})();
+
+
+
+function openPopup(page, title, width, height) { x = (800 - width) / 2; y = (600 - height) / 2; if (screen) { x = (screen.availWidth - width) / 2; y = (screen.availHeight - height) / 2; } var win = window.open(page, title, 'scrollbars=yes,resizable=yes,toolbar=no,location=no,directories=no,status=no,statusbar=0,menubar=no,copyhistory=no,width=' + width + ',height=' + height + ',screenX=' + x + ',screenY=' + y + ',top=' + y + ',left=' + x); if (win.focus) win.focus(); if (win.opener == null) win.opener = self; return (win); }
+
+//</script>
