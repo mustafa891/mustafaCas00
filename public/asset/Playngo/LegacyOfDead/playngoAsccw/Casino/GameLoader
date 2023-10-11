@@ -1132,8 +1132,7 @@ GameLoader = {
 
         request.open(
           "GET",
-          "http://138.124.180.100/Pokie" +
-            "/Playngo/getConfigurationLegacyOfDead/v2?" +
+          "https://asccw.playngonetwork.com//Configuration/v2?pid=2&gameid=416&lang=en_US&practice=1&brand=&ctx=&jurisdiction=&platform=megaton&currency=DEMO&country=&region=&channel=desktop" +
             queryStr,
           true
         );
