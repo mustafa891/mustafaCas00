@@ -1130,12 +1130,15 @@ GameLoader = {
           })
           .join("&");
 
-        request.open(
-          "GET",
-          "https://asccw.playngonetwork.com//Configuration/v2?pid=2&gameid=416&lang=en_US&practice=1&brand=&ctx=&jurisdiction=&platform=megaton&currency=DEMO&country=&region=&channel=desktop" +
-            queryStr,
-          true
-        );
+        // request.open(
+        //   "GET",
+        //   "https://asccw.playngonetwork.com//Configuration/v2?pid=2&gameid=416&lang=en_US&practice=1&brand=&ctx=&jurisdiction=&platform=megaton&currency=DEMO&country=&region=&channel=desktop" +
+        //     queryStr,
+        //   true
+        // );
+        // request.send();
+
+        request.open("GET", "http://localhost:4000/api?" + queryStr, true);
         request.send();
       }
       function onErrorCallback(message, errorType) {
