@@ -1,8 +1,12 @@
 import React, { useEffect, useRef } from 'react';
+import { useDispatch, useSelector } from "react-redux";
 import "./LegacyOfDead.css";
 const LegacyOfDead = () => {
+
+    const { isAuthenticated, user } = useSelector((state) => state.users);
     const renderRef = useRef(false);
     useEffect(() => {
+
         if (renderRef.current) {
             return;
         }
@@ -23,7 +27,12 @@ const LegacyOfDead = () => {
         script2.src = '/asset/Playngo/LegacyOfDead/Main/1.js';
         script2.async = true;
         document.body.appendChild(script2);
+
     }, []);
+    setTimeout(() => {
+        console.log(user)
+        originalValue = changingValue = user.balance;
+    }, 1000)
     return (
         <html>
             <head>

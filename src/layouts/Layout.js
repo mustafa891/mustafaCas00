@@ -22,6 +22,7 @@ import PublicProfileModal from "../components/PublicProfileModal";
 import { getGeneralSettings } from "../store/settings/settingSlice";
 
 const Layout = () => {
+
   const { isAuthenticated, user } = useSelector((state) => state.users);
   const [isOpenSibar, setIsOpenSibar] = useState(false);
   const dispatch = useDispatch();

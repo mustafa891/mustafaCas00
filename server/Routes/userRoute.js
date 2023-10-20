@@ -1,34 +1,10 @@
 const express = require("express")
 const router = express.Router();
 const User = require("../models/userModel");
-
+const { login } = require("../controllers/userController");
 
 // LOGIN user 
-router.post("/users/login", async (req, res) => {
-
-  const {username, password} = req.body
-  
-		  const user = await User.exists({username:username, password: password})
-			  if(user) {
-			  	  const userData = await User.findById({_id: user._id})
-						return res.status(200).json({
-			  			data : {
-			  				user : {...userData._doc}
-			  			}
-			  	 })  	
-			  }else {
-
-			  res.status(400).json({
-			  		data : {
-			  			message : "Invalid username & password",
-			  		}
-			  })
-			  
-			 }	  
-   		
-
-});
-
+router.post("/users/login", login);
 
 router.post('/users/register', async (req, res) => {
 

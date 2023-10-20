@@ -17,7 +17,7 @@ import { toFixedTrunc } from "../utils/Helpers";
 
 const TopMenu = ({
   isAuthenticated,
-  balance = "0.0000",
+  balance,
   handleLogout,
   openNewModal,
   navigate,
@@ -69,7 +69,7 @@ const TopMenu = ({
                 <div className="flex items-center">
                   <img className="w-5 mr-1.5" src={CoinImage} alt="coins" />
                   <span className="mr-2 font-medium">
-                    {toFixedTrunc(balance, 4)}
+                    {balance}
                   </span>
                 </div>
                 <p>

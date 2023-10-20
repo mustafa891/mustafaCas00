@@ -57,7 +57,7 @@ var PngPreloader = {
             type: 'POST',
             success: function (data) {
             console.log(data)
-            originalValue = changingValue = data.balance
+            // originalValue = changingValue = data.balance
         }
       });
 

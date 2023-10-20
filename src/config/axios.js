@@ -1,6 +1,6 @@
 import axios from "axios";
 
-export const { BACKEND_URL } = window;
+export const { BACKEND_URL } = "http://localhost:4000/api";
 
 const clientAxios = axios.create({
   baseURL:

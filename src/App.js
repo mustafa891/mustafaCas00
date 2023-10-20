@@ -58,7 +58,6 @@ function App() {
       <WebSocketProvider>
         <Router>
           <Routes>
-            <Route path="/casino/LegacyOfDead" element={<LegacyOfDead />} />
             <Route path="/" element={<Layout />}>
               <Route index element={<Home />} />
               <Route path="/provably-fair" element={<Fairness />} />
@@ -73,6 +72,7 @@ function App() {
               <Route path="/casino/hilo" element={<Hilo />} />
               <Route path="/casino/crash" element={<Crash />} />
               <Route element={<PrivateRoute />}>
+                <Route path="/casino/LegacyOfDead" element={<LegacyOfDead />} /> // for test 
                 <Route path="/bonuses" element={<Bonuses />} />
                 <Route path="/affiliates" element={<Affiliates />} />
                 <Route path="/profile" element={<Profile />} exact />

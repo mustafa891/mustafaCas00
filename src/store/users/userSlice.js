@@ -126,22 +126,24 @@ export const registerUser = (data) => {
 };
 
 export const loginUser = (data) => {
+  console.log(data)
   return async (dispatch) => {
     dispatch(sendRequest());
     try {
       const response = await clientAxios.post("http://localhost:4000/api/users/login", data);
-        console.log(response.data)
+        console.log(response.data.data)
       // if (response.data.status === "success_otp") {
         // dispatch(setOtpCode(response.data.data));
       // } else {
-      //   setTokenApi(response.data.data.token);
-        dispatch(setUserAuthenticated(response.data.user));
-      //   dispatch(setMessage(response.data.message));
-      //   setTimeout(() => {
-      //     dispatch(hideAlerts());
-      //   }, 3000);
+        setTokenApi(response.data.data.user._id); // for test 
+        dispatch(setUserAuthenticated(response.data.data.user));
+        dispatch(setMessage(response.data.message));
+        setTimeout(() => {
+          dispatch(hideAlerts());
+        }, 3000);
       // }
     } catch (error) {
+      console.log(error)
       dispatch(setError(error.response.data.message));
       //Hide alert after 3 seconds
       setTimeout(() => {
