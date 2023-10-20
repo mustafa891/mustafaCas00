@@ -510,7 +510,6 @@ GameLoader = {
 
   log: function (str, e) {
     if (this.configuration.debug === "True") {
-      console.log(str, e);
       if (e) {
         alert(e);
       }

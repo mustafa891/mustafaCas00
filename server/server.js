@@ -1,12 +1,31 @@
+require('dotenv').config()
 const express = require("express");
-const cors = require("cors");
 const app = express();
+const cors = require("cors");
+const mongoose = require("mongoose")
+const userRouter = require("./Routes/userRoute.js");
 
 app.use(
   cors({
     origin: "*",
   })
 );
+
+// Middlware 
+
+app.use(express.json())
+
+// connecting to the database 
+mongoose.connect('mongodb+srv://kurdgames90:mustafa2006@mernapp.parznep.mongodb.net/?retryWrites=true&w=majority')
+.then(() => {
+app.listen(4000, () => {
+  console.log("connected to db & Server is runing on port 4000");
+});
+
+}). catch(error => {
+  console.log(error.message)
+})
+
 
 app.get("/api", (req, res) => {
   console.log("Hitting route");
@@ -163,20 +182,11 @@ app.get("/api", (req, res) => {
   };
 
   res.json(data);
-  //   res.json({ status: "1" });
 });
 
-app.post("/Playngo/service", (req, res) => {
-  // const obj = {
-  //   data : [`
-  //         d=1 1 10 20 4 3 6 3 1 4 6 4 5 8 1 2 5 0 4 0 0 2 0 2 3 2 6 2 3 3 7
-  //         3 1 0 0 0 1
-  //         6 0
-  //         52 99999600 0 0`],
-  // }
-  //     res.json(obj);
+app.use("/api", userRouter);
+
+app.post("/api/Playngo/getBalance", (req, res) => {
+  res.json({balance : 10000})
 });
 
-app.listen(4000, () => {
-  console.log("Server is runing on port 4000");
-});

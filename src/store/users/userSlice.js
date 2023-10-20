@@ -129,17 +129,18 @@ export const loginUser = (data) => {
   return async (dispatch) => {
     dispatch(sendRequest());
     try {
-      const response = await clientAxios.post("/api/users/login", data);
-      if (response.data.status === "success_otp") {
-        dispatch(setOtpCode(response.data.data));
-      } else {
-        setTokenApi(response.data.data.token);
-        dispatch(setUserAuthenticated(response.data.data.user));
-        dispatch(setMessage(response.data.message));
-        setTimeout(() => {
-          dispatch(hideAlerts());
-        }, 3000);
-      }
+      const response = await clientAxios.post("http://localhost:4000/api/users/login", data);
+        console.log(response.data)
+      // if (response.data.status === "success_otp") {
+        // dispatch(setOtpCode(response.data.data));
+      // } else {
+      //   setTokenApi(response.data.data.token);
+        dispatch(setUserAuthenticated(response.data.user));
+      //   dispatch(setMessage(response.data.message));
+      //   setTimeout(() => {
+      //     dispatch(hideAlerts());
+      //   }, 3000);
+      // }
     } catch (error) {
       dispatch(setError(error.response.data.message));
       //Hide alert after 3 seconds

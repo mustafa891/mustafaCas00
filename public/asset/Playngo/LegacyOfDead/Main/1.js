@@ -11,6 +11,7 @@ var freespinMoney = 0;
 var gameName = "LegacyOfDead";
 var saveData = "";
 var freespinFlg2 = false;
+var site_url = "http://localhost:4000/api"
 var PngPreloader = {
   progressBar: null,
   wrapper: null,
@@ -46,6 +47,20 @@ var PngPreloader = {
   },
 
   setLoaderMessage: function (loaderMessage) {
+
+    // get user balance from db
+      $.ajax({
+              url: site_url + '/Playngo/getBalance',
+              data: {
+              'method': 'get_balance',
+            },
+            type: 'POST',
+            success: function (data) {
+            console.log(data)
+            originalValue = changingValue = data.balance
+        }
+      });
+
     this.loaderMessageText = loaderMessage;
     this.showLoaderMessage();
   },
