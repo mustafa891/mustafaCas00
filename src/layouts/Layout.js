@@ -34,6 +34,7 @@ const Layout = () => {
   };
 
   useEffect(() => {
+    console.log("Hi my name is mustafa")
     dispatch(profileUser());
     checkClientSeed();
     dispatch(getGeneralSettings());

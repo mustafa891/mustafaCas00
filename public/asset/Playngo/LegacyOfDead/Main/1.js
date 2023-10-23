@@ -1,8 +1,8 @@
 var Asccw_url = "/asset/Playngo/LegacyOfDead/playngoAsccw";
-var site_url = "";
+var site_url = "http://localhost:4000/api";
 var tempValue = 2500000;
-var originalValue = 1000;
-var changingValue = 1000;
+var originalValue = 0;
+var changingValue = 0;
 var nomoney = false;
 var moneyMessage = false;
 var freespinFlg = 0;
@@ -11,7 +11,6 @@ var freespinMoney = 0;
 var gameName = "LegacyOfDead";
 var saveData = "";
 var freespinFlg2 = false;
-var site_url = "http://localhost:4000/api"
 var PngPreloader = {
   progressBar: null,
   wrapper: null,
@@ -49,15 +48,19 @@ var PngPreloader = {
   setLoaderMessage: function (loaderMessage) {
 
     // get user balance from db
+      const token = localStorage.getItem("access_token"); 
       $.ajax({
-              url: site_url + '/Playngo/getBalance',
+              url: site_url + '/user/balance',
               data: {
               'method': 'get_balance',
             },
+            headers : {
+               'authorization' : `Bearer ${token}`,
+            },
             type: 'POST',
             success: function (data) {
-            console.log(data)
-            // originalValue = changingValue = data.balance
+            const balance = data.data.balance
+            originalValue = changingValue = 0
         }
       });
 
@@ -317,3 +320,4 @@ GameLauncher = {
 };
 
 GameLauncher.loadGame();
+

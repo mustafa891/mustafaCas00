@@ -112,11 +112,11 @@ export const registerUser = (data) => {
   return async (dispatch) => {
     dispatch(sendRequest());
     try {
-      const response = await clientAxios.post("/api/users/register", data);
+      const response = await clientAxios.post("http://localhost:4000/api/user/register", data);
       dispatch(setEmailVerification(true));
       dispatch(setMessage(response.data.message));
     } catch (error) {
-      dispatch(setError(error.response.data.message));
+      dispatch(setError(error.response.data.error));
       //Hide alert after 3 seconds
       setTimeout(() => {
         dispatch(hideAlerts());
@@ -130,14 +130,15 @@ export const loginUser = (data) => {
   return async (dispatch) => {
     dispatch(sendRequest());
     try {
-      const response = await clientAxios.post("http://localhost:4000/api/users/login", data);
+      const response = await clientAxios.post("http://localhost:4000/api/user/login", data);
         console.log(response.data.data)
       // if (response.data.status === "success_otp") {
         // dispatch(setOtpCode(response.data.data));
       // } else {
-        setTokenApi(response.data.data.user._id); // for test 
+        setTokenApi(response.data.data.token); // for test 
         dispatch(setUserAuthenticated(response.data.data.user));
-        dispatch(setMessage(response.data.message));
+        dispatch(setMessage(response.data.data.message));
+
         setTimeout(() => {
           dispatch(hideAlerts());
         }, 3000);
@@ -179,12 +180,14 @@ export const profileUser = (data) => {
   return async (dispatch) => {
     //dispatch(sendRequest());
     const token = getTokenApi();
+    console.log(data)
     try {
       if (!token) {
         dispatch(authenticatedFail());
       } else {
         tokenAuth(token);
-        const response = await clientAxios.post("/api/users/profile", data);
+        const response = await clientAxios.post("http://localhost:4000/api/user/profile", data);
+        console.log(response.data.data)
         dispatch(setUserAuthenticated(response.data.data));
       }
     } catch (error) {

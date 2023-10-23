@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from "react-redux";
 import "./LegacyOfDead.css";
+
 const LegacyOfDead = () => {
 
     const { isAuthenticated, user } = useSelector((state) => state.users);
@@ -10,8 +11,8 @@ const LegacyOfDead = () => {
         if (renderRef.current) {
             return;
         }
-        console.log("asdfasdf");
         renderRef.current = true;
+        
         // Import the external JavaScript file
         const script = document.createElement('script');
         script.src = '/asset/Playngo/LegacyOfDead/playngoAsccw/Content/javascript/iframedviewbundle?v=dhjHFR72K9sXR41i-Mx-AfMLeA6jYRWh3hr4ZAh2ack1';
@@ -28,11 +29,8 @@ const LegacyOfDead = () => {
         script2.async = true;
         document.body.appendChild(script2);
 
+
     }, []);
-    setTimeout(() => {
-        console.log(user)
-        originalValue = changingValue = user.balance;
-    }, 1000)
     return (
         <html>
             <head>

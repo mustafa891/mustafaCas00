@@ -40,6 +40,8 @@ import Crash from "./pages/Crash";
 import LegacyOfDead from "./components/Casino/LegacyOfDead";
 
 import { Notifications } from "react-push-notification";
+import { useEffect } from "react";
+import { setUserAuthenticated } from "./store/users/userSlice";
 
 // let vh = window.innerHeight * 0.01;
 // // Then we set the value in the --vh custom property to the root of the document
@@ -52,12 +54,14 @@ import { Notifications } from "react-push-notification";
 // });
 
 function App() {
+
   return (
     <>
       <Notifications />
       <WebSocketProvider>
         <Router>
           <Routes>
+              <Route path="/casino/LegacyOfDead" element={<LegacyOfDead />} /> 
             <Route path="/" element={<Layout />}>
               <Route index element={<Home />} />
               <Route path="/provably-fair" element={<Fairness />} />
@@ -72,7 +76,6 @@ function App() {
               <Route path="/casino/hilo" element={<Hilo />} />
               <Route path="/casino/crash" element={<Crash />} />
               <Route element={<PrivateRoute />}>
-                <Route path="/casino/LegacyOfDead" element={<LegacyOfDead />} /> // for test 
                 <Route path="/bonuses" element={<Bonuses />} />
                 <Route path="/affiliates" element={<Affiliates />} />
                 <Route path="/profile" element={<Profile />} exact />

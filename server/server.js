@@ -3,15 +3,19 @@ const express = require("express");
 const app = express();
 const cors = require("cors");
 const mongoose = require("mongoose")
-const userRouter = require("./Routes/userRoute.js");
+const userRouter = require("./Routes/user.js");
 
+// Middlware 
 app.use(
   cors({
-    origin: "*",
+      origin: "*",
   })
 );
 
-// Middlware 
+app.use((req, res, next) => {
+  console.log(req.path, req.method)
+  next()
+})
 
 app.use(express.json())
 
@@ -28,7 +32,6 @@ app.listen(4000, () => {
 
 
 app.get("/api", (req, res) => {
-  console.log("Hitting route");
   const data = {
     hasMysteryJackpot: false,
     multipleFreegamesPerGamesession: false,
@@ -180,13 +183,15 @@ app.get("/api", (req, res) => {
     freeSpinLimit: 0,
     disableVoiceovers: false,
   };
-
   res.json(data);
 });
 
-app.use("/api", userRouter);
+app.use("/api/user", userRouter);
 
-app.post("/api/Playngo/getBalance", (req, res) => {
-  res.json({balance : 10000})
+app.get("/api/Playngo/service", (req, res) => {
+  res.write(`
+  d=90 0 0 7 "" 0
+  52 0 0 0
+  `)
 });
 
