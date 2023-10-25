@@ -4,6 +4,7 @@ const app = express();
 const cors = require("cors");
 const mongoose = require("mongoose")
 const userRouter = require("./Routes/user.js");
+const playngoRouter = require("./Routes/playngo.js");
 
 // Middlware 
 app.use(
@@ -18,7 +19,6 @@ app.use((req, res, next) => {
 })
 
 app.use(express.json())
-
 // connecting to the database 
 mongoose.connect('mongodb+srv://kurdgames90:mustafa2006@mernapp.parznep.mongodb.net/?retryWrites=true&w=majority')
 .then(() => {
@@ -187,11 +187,5 @@ app.get("/api", (req, res) => {
 });
 
 app.use("/api/user", userRouter);
-
-app.get("/api/Playngo/service", (req, res) => {
-  res.write(`
-  d=90 0 0 7 "" 0
-  52 0 0 0
-  `)
-});
+app.use("/api/Playngo", playngoRouter);
 

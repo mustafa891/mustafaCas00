@@ -60,7 +60,7 @@ var PngPreloader = {
             type: 'POST',
             success: function (data) {
             const balance = data.data.balance
-            originalValue = changingValue = 0
+            originalValue = changingValue = balance
         }
       });
 
